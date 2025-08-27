@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+  <!-- Flash Messages -->
+  
+
+  <!-- Total Section -->
+  <div class="row mb-4">
+    <div class="col-md-4 mx-auto">
+      <div class="card shadow-sm border-0 rounded-4 text-center p-3 bg-dark text-white">
+        <h6 class="mb-1">Total Spent</h6>
+        <h4 class="fw-bold">Rs {{ total }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pie Chart + Add Expense -->
+  <div class="row mb-4">
+    <!-- Pie Chart -->
+    <div class="col-md-5 mb-3">
+      <div class="card shadow-sm border-0 rounded-4 p-3">
+        <h6 class="text-center mb-2">Expense Breakdown</h6>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Add Expense Form -->
+    <div class="col-md-7 mb-3">
+      <div class="card shadow-sm border-0 rounded-4 p-4">
+        <h6 class="text-center mb-3">Add Expense</h6>
+        <form method="POST" action="{{ url_for('index') }}">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ form.title.label(class="form-label fw-bold") }}
+            {{ form.title(class="form-control", placeholder="e.g. Grocery") }}
+          </div>
+
+          <div class="mb-3">
+            {{ form.category.label(class="form-label fw-bold") }}
+            {{ form.category(class="form-select form-select-lg") }}
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ form.price.label(class="form-label fw-bold") }}
+              {{ form.price(class="form-control", placeholder="Rs") }}
+            </div>
+            <div class="col-md-6 mb-3">
+              {{ form.quantity.label(class="form-label fw-bold") }}
+              {{ form.quantity(class="form-control", placeholder="Qty") }}
+            </div>
+          </div>
+
+          <div class="d-grid">
+            {{ form.submit(class="btn btn-dark btn-lg rounded-pill shadow-sm") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Table -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-sm border-0 rounded-4 p-3">
+        <h4 class="mb-3">Your Expenses</h4>
+        <table id="expensesTable" class="table table-hover align-middle table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Action</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            {% for exp in expenses %}
+            <tr>
+              <td>{{ exp.title }}</td>
+              <td>{{ exp.category }}</td>
+              <td>Rs {{ exp.price }}</td>
+              <td>{{ exp.quantity }}</td>
+              <td>Rs {{ exp.price * exp.quantity }}</td>
+              <td>{{ exp.date_created.strftime('%Y-%m-%d') }}</td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{{ url_for('update_expense', id=exp.id) }}" class="btn btn-sm btn-outline-primary rounded-pill me-1">
+                    <i class="bi bi-pencil-square"></i> Edit
+                  </a>
+                  <a href="{{ url_for('delete_expense', id=exp.id) }}" class="btn btn-sm btn-outline-danger rounded-pill">
+                    <i class="bi bi-trash"></i> Delete
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="col-md-6">
+  <canvas id="pieChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('pieChart').getContext('2d');
+
+  // Check if we actually have data
+  const hasData = {{ 1 if expenses|length > 0 else 0 }};
+
+  let data, labels, backgroundColor;
+
+  if (hasData) {
+    labels = [{% for key in categories.keys() %}'{{ key }}',{% endfor %}];
+    data = [{% for value in categories.values() %}{{ value }},{% endfor %}];
+    backgroundColor = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#8E44AD', '#2ECC71'];
+  } else {
+    labels = ['No Data'];
+    data = [1];
+    backgroundColor = ['#d3d3d3']; // grey placeholder
+  }
+
+  const pieChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: backgroundColor,
+      }]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              if (!hasData) return "No expenses yet";
+              let value = context.raw;
+              return "Rs " + value + " (" + context.formattedValue + ")";
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
+<script>
+  // Automatically hide flash messages after 3 seconds
+  setTimeout(() => {
+    const flashMessages = document.getElementById("flash-messages");
+    if (flashMessages) {
+      flashMessages.style.transition = "opacity 0.5s ease";
+      flashMessages.style.opacity = "0";
+      setTimeout(() => flashMessages.remove(), 500); // Remove from DOM
+    }
+  }, 3000); // 3000ms = 3 seconds
+</script>
+
+
+
+{% endblock %}

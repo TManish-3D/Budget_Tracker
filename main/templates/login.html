@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-4">Login</h3>
+
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+
+  <div class="mb-3">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control", placeholder="Username") }}
+        {% for error in form.username.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.password.label(class="form-label") }}
+        {{ form.password(class="form-control", placeholder="Password") }}
+        {% for error in form.password.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-lg text-white" style="background-color: #1c1c1c; border: none;">
+        {{ form.submit.label.text }}
+    </button>
+    <p class="mt-3">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+</form>
+<script>
+  // Automatically hide flash messages after 3 seconds
+  setTimeout(() => {
+    const flashMessages = document.getElementById("flash-messages");
+    if (flashMessages) {
+      flashMessages.style.transition = "opacity 0.5s ease";
+      flashMessages.style.opacity = "0";
+      setTimeout(() => flashMessages.remove(), 500); // Remove from DOM
+    }
+  }, 3000); // 3000ms = 3 seconds
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Update Expense</h3>
+<form method="POST">
+<div class="mb-2">
+<input type="text" name="title" class="form-control" value="{{ expense.title }}" required>
+</div>
+<div class="mb-2">
+<input type="text" name="category" class="form-control" value="{{ expense.category }}" required>
+</div>
+<div class="mb-2">
+<input type="number" step="0.01" name="price" class="form-control" value="{{ expense.price }}" required>
+</div>
+<div class="mb-2">
+<input type="number" name="quantity" class="form-control" value="{{ expense.quantity }}" required>
+</div>
+<button type="submit" class="btn btn-primary">Update</button>
+</form>
+{% endblock %}
