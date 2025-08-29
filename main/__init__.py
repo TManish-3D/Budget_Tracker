@@ -12,7 +12,7 @@ app.config['SECRET_KEY'] = 'yourhoood'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL',
-    'postgresql://budget_user:%40Thalaboy98@localhost:5432/budget_tracker'
+    'postgresql://hisab_kitab_user:In6PqdK07bcC9c34FOuVOlZlnsMalBX1@dpg-d2o86f56ubrc73aop0d0-a.singapore-postgres.render.com/hisab_kitab'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
